@@ -71,7 +71,7 @@ class AnalyticsTracker {
     this.publishableKey = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || ''
     const medusaUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || ''
     this.endpoint = medusaUrl
-      ? `${medusaUrl}/analytics`
+      ? `${medusaUrl}/store/analytics`
       : process.env.NEXT_PUBLIC_ANALYTICS_ENDPOINT || ''
 
     this.handleVisibilityChange = () => {
