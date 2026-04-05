@@ -17,36 +17,6 @@ export function ElementPickerListener() {
     // Default to localhost for development, but will be overridden
     let parentOrigin: string = 'http://localhost:3001';
 
-    // Navigation tracking setup
-    let navigationCleanup: (() => void) | null = null;
-
-    if (isInIframe) {
-      const sendNavigationUpdate = () => {
-        const path = window.location.pathname + window.location.search;
-        window.parent.postMessage({
-          type: 'NAVIGATION_CHANGE',
-          path,
-        }, parentOrigin); // Use explicit origin, not '*'
-      };
-
-      // Send initial path
-      sendNavigationUpdate();
-
-      // Listen for popstate (back/forward)
-      window.addEventListener('popstate', sendNavigationUpdate);
-
-      // Intercept link clicks for Next.js navigation
-      const handleClick = () => {
-        setTimeout(sendNavigationUpdate, 100);
-      };
-      document.addEventListener('click', handleClick);
-
-      navigationCleanup = () => {
-        window.removeEventListener('popstate', sendNavigationUpdate);
-        document.removeEventListener('click', handleClick);
-      };
-    }
-
     // Element picker state
     let isActive = false;
     let overlay: HTMLDivElement | null = null;
@@ -228,9 +198,6 @@ export function ElementPickerListener() {
     return () => {
       window.removeEventListener('message', handleMessage);
       cleanup();
-      if (navigationCleanup) {
-        navigationCleanup();
-      }
     };
   }, []); // Empty deps - setup once on mount
 

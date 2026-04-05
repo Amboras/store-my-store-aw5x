@@ -9,6 +9,8 @@ import { AnalyticsProvider } from '@/components/analytics-provider'
 import CookieConsent from '@/components/cookie-consent'
 import { Toaster } from 'sonner'
 import { ElementPickerListener } from '@/components/element-picker-listener'
+import { NavigationTracker } from '@/components/navigation-tracker'
+import { Suspense } from 'react'
 
 const heading = Cormorant_Garamond({
   subsets: ['latin'],
@@ -42,6 +44,9 @@ export default function RootLayout({
       <body>
         <Providers>
           <ElementPickerListener />
+          <Suspense fallback={null}>
+            <NavigationTracker />
+          </Suspense>
           <AnnouncementBar />
           <Header />
           <main className="min-h-screen">
