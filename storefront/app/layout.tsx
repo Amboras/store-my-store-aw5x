@@ -44,18 +44,16 @@ export default function RootLayout({
     <html lang="en" className={`${heading.variable} ${body.variable}`} suppressHydrationWarning>
       <head>
         {/* PostHog cross-origin iframe recording shim — records DOM via rrweb and forwards
-            events to the parent window (admin dashboard) for session replay */}
+            events to the parent window (admin dashboard) for session replay.
+            Uses rrweb@2.0.0-alpha.20 (same version proven in ecomcoder production). */}
         <script dangerouslySetInnerHTML={{ __html: `
 (function() {
   'use strict';
   if (window.parent === window) return;
   var origin = window.location.origin;
-  var isRecording = false;
   function startRecording() {
-    if (isRecording) return;
     var record = window.rrweb && window.rrweb.record;
     if (!record) return;
-    isRecording = true;
     record({
       emit: function(event) {
         try { window.parent.postMessage({ type: 'rrweb', event: event, origin: origin, isCheckout: event.type === 2 }, '*'); } catch(e) {}
@@ -64,29 +62,16 @@ export default function RootLayout({
       sampling: { scroll: 150 }
     });
   }
-  function loadScript(url, cb) {
-    var s = document.createElement('script');
-    s.src = url;
-    s.onload = cb;
-    s.onerror = cb;
-    document.head.appendChild(s);
-  }
-  function loadAndRecord() {
-    if (window.rrweb && window.rrweb.record) { startRecording(); return; }
-    // Primary CDN, fallback to jsdelivr if unpkg fails
-    // Version MUST match posthog-js dependency on @posthog/rrweb-record
-    loadScript('https://unpkg.com/@posthog/rrweb-record@0.0.37/dist/rrweb-record.umd.cjs', function() {
-      if (window.rrweb && window.rrweb.record) { startRecording(); return; }
-      loadScript('https://cdn.jsdelivr.net/npm/@posthog/rrweb-record@0.0.37/dist/rrweb-record.umd.cjs', function() {
-        startRecording();
-      });
-    });
-  }
-  window.addEventListener('message', function(e) {
-    if (e.data && (e.data.type === 'posthog:start-recording-v2' || e.data.type === 'posthog:start-recording')) loadAndRecord();
-  });
-  if (document.readyState === 'complete') loadAndRecord();
-  else window.addEventListener('load', loadAndRecord);
+  var s = document.createElement('script');
+  s.src = 'https://unpkg.com/rrweb@2.0.0-alpha.20/dist/rrweb.umd.min.cjs';
+  s.onload = startRecording;
+  s.onerror = function() {
+    var f = document.createElement('script');
+    f.src = 'https://cdn.jsdelivr.net/npm/rrweb@2.0.0-alpha.20/dist/rrweb.umd.min.cjs';
+    f.onload = startRecording;
+    document.head.appendChild(f);
+  };
+  document.head.appendChild(s);
 })();
         `}} />
       </head>
