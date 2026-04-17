@@ -74,7 +74,7 @@
 
   /* Brand color utilities - uses colors from Store.metadata.brand */
   .btn-brand-primary {
-    background-color: var(--brand-primary, #16a34a);
+    background-color: var(--brand-primary, #2563eb);
     color: white;
   }
   .btn-brand-primary:hover {
